@@ -40,6 +40,18 @@ pipeline {
                 '''
             }
         }
+        stage('Docker Deploy') {
+    steps {
+        sh '''
+            docker rm -f ai-text-summarizer 2>/dev/null || true
+
+            docker run -d \
+                --name ai-text-summarizer \
+                -p 8000:8000 \
+                ai-text-summarizer:latest
+        '''
+    }
+}
 
         stage('Build Success') {
             steps {
