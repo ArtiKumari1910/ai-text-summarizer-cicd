@@ -11,16 +11,19 @@ pipeline {
         }
 
         stage('Setup Python') {
-            steps {
-                sh '''
-                    python3 --version
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install --upgrade pip --retries 10 --timeout 120
-                    pip install -r requirements.txt --retries 10 --timeout 120
-                '''
-            }
-        }
+    steps {
+        sh '''
+            python3 --version
+            python3 -m venv venv
+            . venv/bin/activate
+
+            pip install --upgrade pip --retries 10 --timeout 120
+
+            grep -v '^torch==' requirements.txt > requirements-ci.txt
+            pip install -r requirements-ci.txt --retries 10 --timeout 120
+        '''
+    }
+}
 
         stage('Validate Python Code') {
             steps {
