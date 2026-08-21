@@ -33,6 +33,13 @@ pipeline {
                 '''
             }
         }
+        stage('Docker Build') {
+    steps {
+        sh '''
+            docker build -t ai-text-summarizer:latest .
+        '''
+    }
+}
 
         stage('Build Success') {
             steps {
