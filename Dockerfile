@@ -1,0 +1,23 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+        fastapi==0.141.1 \
+        uvicorn==0.52.4 \
+        transformers==4.57.6 && \
+    pip install --no-cache-dir \
+        torch==2.13.0 \
+        --index-url https://download.pytorch.org/whl/cpu
+
+COPY app ./app
+
+EXPOSE 8000
+
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
