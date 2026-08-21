@@ -16,8 +16,8 @@ pipeline {
                     python3 --version
                     python3 -m venv venv
                     . venv/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
+                    pip install --upgrade pip --retries 10 --timeout 120
+                    pip install -r requirements.txt --retries 10 --timeout 120
                 '''
             }
         }
