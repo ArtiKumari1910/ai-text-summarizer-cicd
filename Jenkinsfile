@@ -40,6 +40,26 @@ pipeline {
                 '''
             }
         }
+        stage('DockerHub Push') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'dockerhub-credentials',
+            usernameVariable: 'DOCKERHUB_USER',
+            passwordVariable: 'DOCKERHUB_TOKEN'
+        )]) {
+            sh '''
+                echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
+
+                docker tag ai-text-summarizer:latest \
+                    $DOCKERHUB_USER/ai-text-summarizer:latest
+
+                docker push $DOCKERHUB_USER/ai-text-summarizer:latest
+
+                docker logout
+            '''
+        }
+    }
+}
         stage('Docker Deploy') {
     steps {
         sh '''
