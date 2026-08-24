@@ -36,42 +36,43 @@ pipeline {
         stage('Docker Build') {
             steps {
                 sh '''
-                    docker build -t ai-text-summarizer:latest .
+                    docker build -t arti1910/ai-text-summarizer:${BUILD_NUMBER} .
+                    docker tag arti1910/ai-text-summarizer:${BUILD_NUMBER} arti1910/ai-text-summarizer:latest
                 '''
             }
         }
+
         stage('DockerHub Push') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'dockerhub-credentials',
-            usernameVariable: 'DOCKERHUB_USER',
-            passwordVariable: 'DOCKERHUB_TOKEN'
-        )]) {
-            sh '''
-                echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKERHUB_USER',
+                    passwordVariable: 'DOCKERHUB_TOKEN'
+                )]) {
+                    sh '''
+                        echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
 
-                docker tag ai-text-summarizer:latest \
-                    $DOCKERHUB_USER/ai-text-summarizer:latest
+                        docker push arti1910/ai-text-summarizer:${BUILD_NUMBER}
+                        docker push arti1910/ai-text-summarizer:latest
 
-                docker push $DOCKERHUB_USER/ai-text-summarizer:latest
-
-                docker logout
-            '''
+                        docker logout
+                    '''
+                }
+            }
         }
-    }
-}
-        stage('Docker Deploy') {
-    steps {
-        sh '''
-            docker rm -f ai-text-summarizer 2>/dev/null || true
 
-            docker run -d \
-                --name ai-text-summarizer \
-                -p 8000:8000 \
-                ai-text-summarizer:latest
-        '''
-    }
-}
+        stage('Docker Deploy') {
+            steps {
+                sh '''
+                    docker rm -f ai-text-summarizer 2>/dev/null || true
+
+                    docker run -d \
+                        --name ai-text-summarizer \
+                        -p 8000:8000 \
+                        arti1910/ai-text-summarizer:${BUILD_NUMBER}
+                '''
+            }
+        }
 
         stage('Build Success') {
             steps {
